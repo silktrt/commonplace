@@ -1,9 +1,89 @@
-import { StrictMode } from "react";
-import { createRoot } from "react-dom/client";
-import App from "./App.jsx";
+import { useState } from "react";
 
-createRoot(document.getElementById("root")).render(
-  <StrictMode>
-    <App />
-  </StrictMode>
-);
+const POEMS = [
+  {
+    id: "guite-annunciation",
+    title: "The Annunciation",
+    author: "Malcolm Guite",
+    collection: "Sounding the Seasons (2012)",
+    tag: "LCMS · Advent / Annunciation",
+    lines: [
+      "We see so little, stayed on surfaces,",
+      "We calculate the cost and weight of things",
+      "But do not feel the gravity of grace,",
+      "The feather-touch that opens out our wings.",
+      "",
+      "We are not moved by what is far too near,",
+      "As all good news seems stranger than it should.",
+      "The angel spoke, but still she could not hear",
+      "What, hidden deep within her, she understood.",
+      "",
+      "She said, \"Be it unto me,\" and in that word",
+      "Surrendered time and will and reason wholly.",
+      "Attended, though unseen, by all the host,",
+      "She heard what no-one else could overhear,",
+      "The music of a note beyond all note,",
+      "And felt the feather-touch of God draw near.",
+    ],
+  },
+  {
+    id: "guite-transfiguration",
+    title: "The Transfiguration",
+    author: "Malcolm Guite",
+    collection: "Sounding the Seasons (2012)",
+    tag: "LCMS · Epiphany",
+    lines: [
+      "For that one moment, 'in and out of time',",
+      "On that one mountain where all moments meet,",
+      "The daily veil that covers the sublime",
+      "In darkling glass fell dazzled at his feet.",
+      "",
+      "There were no angels full of eyes and wings",
+      "Just living glory full of truth and grace.",
+      "The Love that dances at the heart of things",
+      "Shone out upon us from a human face.",
+    ],
+  },
+  {
+    id: "tolkien-mythopoeia",
+    title: "Mythopoeia (excerpt)",
+    author: "J.R.R. Tolkien",
+    collection: "Written in reply to C.S. Lewis, c. 1931",
+    tag: "Tolkien · Sub-creation",
+    lines: [
+      "I will not walk with your progressive apes,",
+      "erect and sapient. Before them gapes",
+      "the dark abyss to which their progress tends—",
+      "if by God's mercy progress ever ends,",
+      "and does not ceaselessly revolve the same",
+      "unfruitful course with wild illusive aim.",
+    ],
+  },
+  {
+    id: "herbert-love",
+    title: "Love (III)",
+    author: "George Herbert",
+    collection: "The Temple (1633)",
+    tag: "Devotional · Anglican",
+    lines: [
+      "Love bade me welcome: yet my soul drew back,",
+      "      Guilty of dust and sin.",
+      "But quick-eyed Love, observing me grow slack",
+      "      From my first entrance in,",
+      "Drew nearer to me, sweetly questioning,",
+      "      If I lack'd any thing.",
+      "",
+      "'A guest,' I answer'd, 'worthy to be here:'",
+      "      Love said, 'You shall be he.'",
+      "'I, the unkind, ungrateful? Ah, my dear,",
+      "      I cannot look on thee.'",
+      "Love took my hand, and smiling did reply,",
+      "      'Who made the eyes but I?'",
+    ],
+  },
+  {
+    id: "berry-wild",
+    title: "The Peace of Wild Things",
+    author: "Wendell Berry",
+    collection: "Openings (1968)",
+    tag: "Creation ·
