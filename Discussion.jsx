@@ -1,104 +1,123 @@
 import { useState } from "react";
 
-const INITIAL_ENTRIES = [
+const SPINE_COLORS = ["#4A3E8C", "#1D6B4F", "#8B3A3A", "#B07D3A", "#2C5F7A", "#5A4A2A"];
+
+const INITIAL_READING = [
   {
-    id: 1, type: "Passage · Tolkien",
-    text: "All that is gold does not glitter, not all those who wander are lost; the old that is strong does not wither, deep roots are not reached by the frost.",
-    source: "The Fellowship of the Ring · Bilbo's verse for Aragorn",
-    date: "June 2026",
+    id: 1, title: "The Silmarillion", author: "J.R.R. Tolkien",
+    status: "reading", progress: 42, total: 365, rating: null,
+    color: "#4A3E8C", notes: "The Ainulindalë as theological document.",
   },
   {
-    id: 2, type: "Collect · Luther",
-    text: "God certainly gives daily bread to everyone without our prayers, even to all evil people, but we pray in this petition that God would lead us to realize this and to receive our daily bread with thanksgiving.",
-    source: "Luther's Small Catechism · Fourth Petition",
-    date: "June 2026",
+    id: 2, title: "Faith, Hope and Poetry", author: "Malcolm Guite",
+    status: "reading", progress: 88, total: 240, rating: null,
+    color: "#1D6B4F", notes: "On the imagination as organ of truth.",
   },
   {
-    id: 3, type: "Poem · George Herbert",
-    text: "Love bade me welcome: yet my soul drew back, guilty of dust and sin. But quick-eyed Love, observing me grow slack, drew nearer to me, sweetly questioning, if I lack'd any thing.",
-    source: "George Herbert · Love (III), The Temple",
-    date: "May 2026",
+    id: 3, title: "The Divine Comedy", author: "Dante Alighieri",
+    status: "reading", progress: 120, total: 798, rating: null,
+    color: "#8B3A3A", notes: "Purgatorio — the mountain of the saved.",
   },
   {
-    id: 4, type: "Malcolm Guite",
-    text: "Poetry is the art of recovering the salutary shock of wonder. And wonder, as Aristotle knew, is the beginning of philosophy — and also, as the Psalmist knew, of praise.",
-    source: "Malcolm Guite · Faith, Hope and Poetry",
-    date: "May 2026",
+    id: 4, title: "Beowulf", author: "trans. Seamus Heaney",
+    status: "read", progress: 213, total: 213, rating: 5,
+    color: "#5A4A2A", notes: "A hero who knows he is mortal. Christian scribe, pagan world.",
   },
   {
-    id: 5, type: "Personal reflection",
-    text: "The morning office takes twelve minutes. The whole day is different for it. I do not understand the mechanism but I no longer need to.",
-    source: "Personal · June 2026",
-    date: "June 2026",
+    id: 5, title: "The Brothers Karamazov", author: "Fyodor Dostoevsky",
+    status: "want", progress: 0, total: 796, rating: null,
+    color: "#2C5F7A", notes: "",
   },
   {
-    id: 6, type: "Sermon note",
-    text: "The parable of the Great Banquet does not say the excuses were unreasonable. A field, oxen, a new wife — these are not sins. They are goods. And that is the point: lesser goods can crowd out the greatest Good.",
-    source: "Trinity 2 · Notes",
-    date: "June 2026",
+    id: 6, title: "Till We Have Faces", author: "C.S. Lewis",
+    status: "read", progress: 313, total: 313, rating: 5,
+    color: "#B07D3A", notes: "The myth retold — the complaint against the gods answered.",
   },
 ];
 
-const TYPES = ["All", "Passage", "Poem", "Quotation", "Reflection", "Sermon note", "Collect"];
+const STATUS_LABELS = { reading: "Currently reading", read: "Finished", want: "Want to read" };
+const STARS = [1, 2, 3, 4, 5];
 
-export default function Commonplace() {
-  const [entries, setEntries] = useState(INITIAL_ENTRIES);
-  const [filter, setFilter] = useState("All");
+export default function ReadingLife() {
+  const [books, setBooks] = useState(INITIAL_READING);
+  const [filter, setFilter] = useState("reading");
 
-  const filtered = filter === "All"
-    ? entries
-    : entries.filter((e) => e.type.toLowerCase().includes(filter.toLowerCase()));
+  const filtered = books.filter((b) => b.status === filter);
 
   return (
     <div>
-      <div style={{ display: "flex", gap: "0.4rem", flexWrap: "wrap", marginBottom: "1.5rem" }}>
-        {TYPES.map((t) => (
+      <div style={{ display: "flex", gap: "0.5rem", marginBottom: "1.5rem", flexWrap: "wrap" }}>
+        {Object.entries(STATUS_LABELS).map(([key, label]) => (
           <button
-            key={t}
-            onClick={() => setFilter(t)}
-            style={{
-              fontSize: "0.72rem",
-              padding: "0.3rem 0.7rem",
-              borderRadius: "99px",
-              border: "1px solid var(--border)",
-              background: filter === t ? "var(--gold)" : "transparent",
-              color: filter === t ? "white" : "var(--ink-faint)",
-              cursor: "pointer",
-              fontFamily: "var(--font-body)",
-            }}
+            key={key}
+            className={`tab-btn ${filter === key ? "active" : ""}`}
+            onClick={() => setFilter(key)}
+            style={{ border: "1px solid var(--border)", borderRadius: "var(--radius-md)", padding: "0.35rem 0.85rem" }}
           >
-            {t}
+            {label} ({books.filter((b) => b.status === key).length})
           </button>
         ))}
       </div>
 
       <div className="section">
-        <p className="section-label">
-          {filter === "All" ? `${entries.length} entries` : `${filtered.length} ${filter.toLowerCase()} entries`}
-        </p>
+        <p className="section-label">{STATUS_LABELS[filter]}</p>
         <div className="card" style={{ padding: "0 1.25rem" }}>
-          {filtered.map((entry) => (
-            <div className="cp-entry" key={entry.id}>
-              <p className="cp-type">{entry.type}</p>
-              <p className="cp-text">{entry.text}</p>
-              <p className="cp-source">{entry.source}</p>
+          {filtered.length === 0 && (
+            <p className="serif-text" style={{ padding: "1rem 0", color: "var(--ink-ghost)" }}>
+              Nothing here yet — add a book to begin.
+            </p>
+          )}
+          {filtered.map((book) => (
+            <div className="book-card" key={book.id}>
+              <div
+                className="book-spine"
+                style={{ background: book.color }}
+              >
+                {book.title.split(" ").slice(0, 2).join(" ")}
+              </div>
+              <div style={{ flex: 1 }}>
+                <p className="book-title">{book.title}</p>
+                <p className="book-author">{book.author}</p>
+                {book.status === "reading" && (
+                  <>
+                    <p className="book-progress">
+                      p. {book.progress} of {book.total} · {Math.round((book.progress / book.total) * 100)}%
+                    </p>
+                    <div className="progress-bar">
+                      <div
+                        className="progress-fill"
+                        style={{ width: `${(book.progress / book.total) * 100}%` }}
+                      />
+                    </div>
+                  </>
+                )}
+                {book.status === "read" && book.rating && (
+                  <p style={{ fontSize: "0.78rem", color: "var(--gold)", marginTop: "4px" }}>
+                    {"★".repeat(book.rating)}{"☆".repeat(5 - book.rating)}
+                  </p>
+                )}
+                {book.notes ? (
+                  <p style={{ fontSize: "0.75rem", color: "var(--ink-faint)", marginTop: "4px", fontStyle: "italic", fontFamily: "var(--font-serif)" }}>
+                    {book.notes}
+                  </p>
+                ) : null}
+              </div>
             </div>
           ))}
         </div>
-        <button className="ghost-btn">+ Add entry</button>
+        <button className="ghost-btn">+ Add book</button>
       </div>
 
       <div className="section">
-        <p className="section-label">On the Commonplace Book</p>
+        <p className="section-label">The Tolkien Reading List</p>
         <div className="lore-card">
-          <p className="lore-label">The practice</p>
+          <p className="lore-label">Recommended</p>
           <p className="lore-text">
-            Scholars for centuries kept notebooks of passages, quotations, and observations —
-            not to show learning but to deepen it. Milton kept one. Locke wrote a method
-            for indexing it. Tolkien filled notebooks with invented languages and mythologies.
-            The commonplace book is not a scrapbook; it is a mind made visible.
+            Tolkien loved: Beowulf, the Elder Edda, the Finnish Kalevala, Sir Gawain and
+            the Green Knight, Chaucer, George MacDonald, and William Morris. He read Old
+            English and Old Norse for pleasure. A good library begins here.
           </p>
-          <p className="source-line">After Ann Moss · Printed Commonplace Books and the Structuring of Renaissance Thought</p>
+          <p className="source-line">After The Letters of J.R.R. Tolkien</p>
         </div>
       </div>
     </div>
