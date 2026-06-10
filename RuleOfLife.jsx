@@ -1,104 +1,86 @@
 import { useState } from "react";
 
-const INITIAL_ENTRIES = [
-  {
-    id: 1, type: "Passage · Tolkien",
-    text: "All that is gold does not glitter, not all those who wander are lost; the old that is strong does not wither, deep roots are not reached by the frost.",
-    source: "The Fellowship of the Ring · Bilbo's verse for Aragorn",
-    date: "June 2026",
-  },
-  {
-    id: 2, type: "Collect · Luther",
-    text: "God certainly gives daily bread to everyone without our prayers, even to all evil people, but we pray in this petition that God would lead us to realize this and to receive our daily bread with thanksgiving.",
-    source: "Luther's Small Catechism · Fourth Petition",
-    date: "June 2026",
-  },
-  {
-    id: 3, type: "Poem · George Herbert",
-    text: "Love bade me welcome: yet my soul drew back, guilty of dust and sin. But quick-eyed Love, observing me grow slack, drew nearer to me, sweetly questioning, if I lack'd any thing.",
-    source: "George Herbert · Love (III), The Temple",
-    date: "May 2026",
-  },
-  {
-    id: 4, type: "Malcolm Guite",
-    text: "Poetry is the art of recovering the salutary shock of wonder. And wonder, as Aristotle knew, is the beginning of philosophy — and also, as the Psalmist knew, of praise.",
-    source: "Malcolm Guite · Faith, Hope and Poetry",
-    date: "May 2026",
-  },
-  {
-    id: 5, type: "Personal reflection",
-    text: "The morning office takes twelve minutes. The whole day is different for it. I do not understand the mechanism but I no longer need to.",
-    source: "Personal · June 2026",
-    date: "June 2026",
-  },
-  {
-    id: 6, type: "Sermon note",
-    text: "The parable of the Great Banquet does not say the excuses were unreasonable. A field, oxen, a new wife — these are not sins. They are goods. And that is the point: lesser goods can crowd out the greatest Good.",
-    source: "Trinity 2 · Notes",
-    date: "June 2026",
-  },
+const RHYTHMS = [
+  { icon: "✦", name: "Prayer" },
+  { icon: "📖", name: "Reading" },
+  { icon: "⛪", name: "Liturgy" },
+  { icon: "🚶", name: "Exercise" },
+  { icon: "🍽", name: "Family meal" },
+  { icon: "🚪", name: "Hospitality" },
+  { icon: "✏️", name: "Writing" },
+  { icon: "🎵", name: "Music" },
+  { icon: "🌙", name: "Rest" },
 ];
 
-const TYPES = ["All", "Passage", "Poem", "Quotation", "Reflection", "Sermon note", "Collect"];
+export default function RuleOfLife() {
+  const [observed, setObserved] = useState({});
 
-export default function Commonplace() {
-  const [entries, setEntries] = useState(INITIAL_ENTRIES);
-  const [filter, setFilter] = useState("All");
+  function toggle(name) {
+    setObserved((prev) => ({ ...prev, [name]: !prev[name] }));
+  }
 
-  const filtered = filter === "All"
-    ? entries
-    : entries.filter((e) => e.type.toLowerCase().includes(filter.toLowerCase()));
+  const count = Object.values(observed).filter(Boolean).length;
 
   return (
     <div>
-      <div style={{ display: "flex", gap: "0.4rem", flexWrap: "wrap", marginBottom: "1.5rem" }}>
-        {TYPES.map((t) => (
-          <button
-            key={t}
-            onClick={() => setFilter(t)}
-            style={{
-              fontSize: "0.72rem",
-              padding: "0.3rem 0.7rem",
-              borderRadius: "99px",
-              border: "1px solid var(--border)",
-              background: filter === t ? "var(--gold)" : "transparent",
-              color: filter === t ? "white" : "var(--ink-faint)",
-              cursor: "pointer",
-              fontFamily: "var(--font-body)",
-            }}
-          >
-            {t}
-          </button>
-        ))}
-      </div>
-
       <div className="section">
-        <p className="section-label">
-          {filter === "All" ? `${entries.length} entries` : `${filtered.length} ${filter.toLowerCase()} entries`}
-        </p>
-        <div className="card" style={{ padding: "0 1.25rem" }}>
-          {filtered.map((entry) => (
-            <div className="cp-entry" key={entry.id}>
-              <p className="cp-type">{entry.type}</p>
-              <p className="cp-text">{entry.text}</p>
-              <p className="cp-source">{entry.source}</p>
-            </div>
-          ))}
-        </div>
-        <button className="ghost-btn">+ Add entry</button>
-      </div>
-
-      <div className="section">
-        <p className="section-label">On the Commonplace Book</p>
-        <div className="lore-card">
-          <p className="lore-label">The practice</p>
-          <p className="lore-text">
-            Scholars for centuries kept notebooks of passages, quotations, and observations —
-            not to show learning but to deepen it. Milton kept one. Locke wrote a method
-            for indexing it. Tolkien filled notebooks with invented languages and mythologies.
-            The commonplace book is not a scrapbook; it is a mind made visible.
+        <p className="section-label">Today's Rhythms</p>
+        <div className="card">
+          <div className="rhythm-grid">
+            {RHYTHMS.map((r) => (
+              <div
+                key={r.name}
+                className={`rhythm-tile ${observed[r.name] ? "observed" : ""}`}
+                onClick={() => toggle(r.name)}
+                role="checkbox"
+                aria-checked={!!observed[r.name]}
+                tabIndex={0}
+                onKeyDown={(e) => e.key === " " && toggle(r.name)}
+              >
+                <div className="rhythm-icon">{r.icon}</div>
+                <div className="rhythm-name">{r.name}</div>
+              </div>
+            ))}
+          </div>
+          <p className="rhythm-note">
+            {count === 0
+              ? "These are not achievements but pilgrimages. Mark what was given to you today."
+              : count < 4
+              ? `${count} rhythm${count > 1 ? "s" : ""} observed. Not all those who wander are lost.`
+              : `${count} rhythms observed today. "In the end it's only a passing thing, this shadow." — Samwise Gamgee`}
           </p>
-          <p className="source-line">After Ann Moss · Printed Commonplace Books and the Structuring of Renaissance Thought</p>
+        </div>
+      </div>
+
+      <div className="section">
+        <p className="section-label">On the Rule</p>
+        <div className="card">
+          <p className="serif-text">
+            A rule of life is not a productivity system. It is an ordering of the day toward
+            the things that matter — toward God, toward family, toward the good, the true,
+            and the beautiful. Benedict wrote his Rule for monks; we borrow its spirit for
+            the household.
+          </p>
+          <p className="serif-text" style={{ marginTop: "0.75rem" }}>
+            Mark each rhythm not as a task completed but as a grace received. On the days
+            when nothing is marked, the rule has still done its work — you noticed the absence,
+            and that noticing is itself a kind of prayer.
+          </p>
+        </div>
+      </div>
+
+      <div className="section">
+        <p className="section-label">The Tolkien Note</p>
+        <div className="lore-card">
+          <p className="lore-label">On ordered life</p>
+          <p className="lore-text">
+            "I am in fact a Hobbit in all but size. I like gardens, tree-lined avenues,
+            pipe-weed, good plain food, and I detest French cooking; I like, and even dare
+            to wear in these dull days, ornamental waistcoats. I am fond of mushrooms
+            (out of a field); have a very simple sense of humour… I go to bed late and get
+            up late (when possible). I do not travel much."
+          </p>
+          <p className="source-line">J.R.R. Tolkien · letter to Deborah Webster, 1958</p>
         </div>
       </div>
     </div>
