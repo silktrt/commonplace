@@ -1,104 +1,90 @@
-// LCMS One-Year Lectionary data
-// Keyed by liturgical season and week
+import { useState } from "react";
 
-export const LITURGICAL_COLORS = {
-  advent: "#4A3E8C",       // violet
-  christmas: "#F5F0E8",    // white (gold border)
-  epiphany: "#1D6B4F",     // green
-  lent: "#4A3E8C",         // violet
-  holyweek: "#8B1A1A",     // red/scarlet
-  easter: "#F5F0E8",       // white
-  pentecost: "#8B1A1A",    // red
-  trinity: "#1D6B4F",      // green
-};
+const INITIAL_READING = [
+  { id: 1, title: "The Silmarillion", author: "J.R.R. Tolkien", status: "reading", progress: 42, total: 365, rating: null, color: "#4A3E8C", notes: "The Ainulindalë as theological document." },
+  { id: 2, title: "Faith, Hope and Poetry", author: "Malcolm Guite", status: "reading", progress: 88, total: 240, rating: null, color: "#1D6B4F", notes: "On the imagination as organ of truth." },
+  { id: 3, title: "The Divine Comedy", author: "Dante Alighieri", status: "reading", progress: 120, total: 798, rating: null, color: "#8B3A3A", notes: "Purgatorio — the mountain of the saved." },
+  { id: 4, title: "Beowulf", author: "trans. Seamus Heaney", status: "read", progress: 213, total: 213, rating: 5, color: "#5A4A2A", notes: "A hero who knows he is mortal. Christian scribe, pagan world." },
+  { id: 5, title: "The Brothers Karamazov", author: "Fyodor Dostoevsky", status: "want", progress: 0, total: 796, rating: null, color: "#2C5F7A", notes: "" },
+  { id: 6, title: "Till We Have Faces", author: "C.S. Lewis", status: "read", progress: 313, total: 313, rating: 5, color: "#B07D3A", notes: "The myth retold — the complaint against the gods answered." },
+];
 
-export const TODAY = {
-  season: "trinity",
-  week: 2,
-  weekday: "Wednesday",
-  liturgicalName: "The Second Wednesday after Trinity",
-  seasonName: "Season after Pentecost · Ordinary Time",
-  propers: "LSB One-Year · Green · Week of Trinity 2",
-  color: "#1D6B4F",
+const STATUS_LABELS = { reading: "Currently reading", read: "Finished", want: "Want to read" };
 
-  morningPrayer: {
-    text: "I thank You, my heavenly Father, through Jesus Christ, Your dear Son, that You have kept me this night from all harm and danger; and I pray that You would keep me this day also from sin and every evil, that all my doings and life may please You.",
-    source: "Luther's Morning Prayer · Small Catechism",
-  },
+export default function ReadingLife() {
+  const [books] = useState(INITIAL_READING);
+  const [filter, setFilter] = useState("reading");
 
-  collect: {
-    text: "O God, You have prepared for those who love You good things that surpass all understanding. Pour into our hearts such love toward You that we, loving You in all things and above all things, may obtain Your promises, which exceed all that we can desire;",
-    conclusion: "through Jesus Christ, Your Son, our Lord, who lives and reigns with You and the Holy Spirit, one God, now and forever. Amen.",
-    source: "Collect for Trinity 2 · Lutheran Service Book",
-  },
+  const filtered = books.filter((b) => b.status === filter);
 
-  psalm: {
-    number: 34,
-    title: "Psalm 34",
-    subtitle: "I will bless the Lord at all times",
-    verses: [
-      { num: "1", text: ["I will bless the ", "LORD", " at all times; his praise shall continually be in my mouth."] },
-      { num: "2", text: ["My soul makes its boast in the ", "LORD", "; let the humble hear and be glad."] },
-      { num: "3", text: ["Oh, magnify the ", "LORD", " with me, and let us exalt his name together!"] },
-      { num: "4", text: ["I sought the ", "LORD", ", and he answered me and delivered me from all my fears."] },
-      { num: "8", text: ["Oh, taste and see that the ", "LORD", " is good! Blessed is the man who takes refuge in him!"] },
-    ],
-    gloria: true,
-    source: "English Standard Version",
-  },
+  return (
+    <div>
+      <div style={{ display: "flex", gap: "0.5rem", marginBottom: "1.5rem", flexWrap: "wrap" }}>
+        {Object.entries(STATUS_LABELS).map(([key, label]) => (
+          <button
+            key={key}
+            className={`tab-btn ${filter === key ? "active" : ""}`}
+            onClick={() => setFilter(key)}
+            style={{ border: "1px solid var(--border)", borderRadius: "var(--radius-md)", padding: "0.35rem 0.85rem" }}
+          >
+            {label} ({books.filter((b) => b.status === key).length})
+          </button>
+        ))}
+      </div>
 
-  scripture: {
-    reference: "Luke 14:16–24",
-    heading: "The Parable of the Great Banquet",
-    text: "A man once gave a great banquet and invited many. And at the time for the banquet he sent his servant to say to those who had been invited, \"Come, for everything is now ready.\" But they all alike began to make excuses.",
-    version: "ESV · Gospel for Trinity 2",
-  },
+      <div className="section">
+        <p className="section-label">{STATUS_LABELS[filter]}</p>
+        <div className="card" style={{ padding: "0 1.25rem" }}>
+          {filtered.length === 0 && (
+            <p className="serif-text" style={{ padding: "1rem 0", color: "var(--ink-ghost)" }}>
+              Nothing here yet.
+            </p>
+          )}
+          {filtered.map((book) => (
+            <div className="book-card" key={book.id}>
+              <div className="book-spine" style={{ background: book.color }}>
+                {book.title.split(" ").slice(0, 2).join(" ")}
+              </div>
+              <div style={{ flex: 1 }}>
+                <p className="book-title">{book.title}</p>
+                <p className="book-author">{book.author}</p>
+                {book.status === "reading" && (
+                  <>
+                    <p className="book-progress">p. {book.progress} of {book.total} · {Math.round((book.progress / book.total) * 100)}%</p>
+                    <div className="progress-bar">
+                      <div className="progress-fill" style={{ width: `${(book.progress / book.total) * 100}%` }} />
+                    </div>
+                  </>
+                )}
+                {book.status === "read" && book.rating && (
+                  <p style={{ fontSize: "0.78rem", color: "var(--gold)", marginTop: "4px" }}>
+                    {"★".repeat(book.rating)}{"☆".repeat(5 - book.rating)}
+                  </p>
+                )}
+                {book.notes ? (
+                  <p style={{ fontSize: "0.75rem", color: "var(--ink-faint)", marginTop: "4px", fontStyle: "italic", fontFamily: "var(--font-serif)" }}>
+                    {book.notes}
+                  </p>
+                ) : null}
+              </div>
+            </div>
+          ))}
+        </div>
+        <button className="ghost-btn">+ Add book</button>
+      </div>
 
-  epistle: {
-    reference: "1 John 3:13–18",
-    heading: "Love in Deed and Truth",
-    text: "Do not be surprised, brothers, that the world hates you. We know that we have passed out of death into life, because we love the brothers. Whoever does not love abides in death.",
-    version: "ESV · Epistle for Trinity 2",
-  },
-
-  commemoration: {
-    calendarNote: "LCMS Calendar · June 10",
-    name: "St. Ephrem of Syria, Deacon (c. 306–373)",
-    glyph: "✦",
-    description: "Theologian, poet, and hymnwriter of the ancient Syrian church. He composed hymns in verse to carry truth where argument could not reach, believing beauty and song were vessels for doctrine. Called the Harp of the Holy Spirit.",
-  },
-
-  poem: {
-    title: "The Annunciation",
-    author: "Malcolm Guite",
-    collection: "Sounding the Seasons (2012)",
-    note: "Guite's corona of sonnets on the liturgical year — fitting daily alongside the office.",
-    lines: `We see so little, stayed on surfaces,
-We calculate the cost and weight of things
-But do not feel the gravity of grace,
-The feather-touch that opens out our wings.
-
-Be it unto me according to thy word.
-Attended, though unseen, by all the host,
-She heard what no-one else could overhear,
-The music of a note beyond all note.`,
-  },
-
-  tolkienPassage: {
-    label: "Sub-creation",
-    text: "In the beginning Ilúvatar made the Ainur of his thought; and they made a great Music before him. In this Music the World was begun…",
-    source: "The Ainulindalë · The Silmarillion",
-  },
-
-  quotation: {
-    text: "The only just literary critic is Christ, who admires more than does any man the unity and variety of his creation.",
-    source: "J.R.R. Tolkien · letter to C.S. Lewis",
-  },
-
-  intentions: [
-    "Morning and evening prayer from the office",
-    "Read twenty pages of The Silmarillion",
-    "Memorize the next stanza of Guite's Annunciation sonnet",
-    "Family supper — no phones at the table",
-  ],
-};
+      <div className="section">
+        <p className="section-label">The Tolkien Reading List</p>
+        <div className="lore-card">
+          <p className="lore-label">Recommended</p>
+          <p className="lore-text">
+            Tolkien loved: Beowulf, the Elder Edda, the Finnish Kalevala, Sir Gawain and
+            the Green Knight, Chaucer, George MacDonald, and William Morris. He read Old
+            English and Old Norse for pleasure. A good library begins here.
+          </p>
+          <p className="source-line">After The Letters of J.R.R. Tolkien</p>
+        </div>
+      </div>
+    </div>
+  );
+}
