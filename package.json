@@ -1,0 +1,221 @@
+import { useState } from "react";
+
+const POEMS = [
+  {
+    id: "guite-annunciation",
+    title: "The Annunciation",
+    author: "Malcolm Guite",
+    collection: "Sounding the Seasons (2012)",
+    tag: "LCMS · Advent / Annunciation",
+    lines: [
+      "We see so little, stayed on surfaces,",
+      "We calculate the cost and weight of things",
+      "But do not feel the gravity of grace,",
+      "The feather-touch that opens out our wings.",
+      "",
+      "We are not moved by what is far too near,",
+      "As all good news seems stranger than it should.",
+      "The angel spoke, but still she could not hear",
+      "What, hidden deep within her, she understood.",
+      "",
+      "She said, \"Be it unto me,\" and in that word",
+      "Surrendered time and will and reason wholly.",
+      "Attended, though unseen, by all the host,",
+      "She heard what no-one else could overhear,",
+      "The music of a note beyond all note,",
+      "And felt the feather-touch of God draw near.",
+    ],
+  },
+  {
+    id: "guite-transfiguration",
+    title: "The Transfiguration",
+    author: "Malcolm Guite",
+    collection: "Sounding the Seasons (2012)",
+    tag: "LCMS · Epiphany",
+    lines: [
+      "For that one moment, 'in and out of time',",
+      "On that one mountain where all moments meet,",
+      "The daily veil that covers the sublime",
+      "In darkling glass fell dazzled at his feet.",
+      "",
+      "There were no angels full of eyes and wings",
+      "Just living glory full of truth and grace.",
+      "The Love that dances at the heart of things",
+      "Shone out upon us from a human face.",
+    ],
+  },
+  {
+    id: "tolkien-mythopoeia",
+    title: "Mythopoeia (excerpt)",
+    author: "J.R.R. Tolkien",
+    collection: "Written in reply to C.S. Lewis, c. 1931",
+    tag: "Tolkien · Sub-creation",
+    lines: [
+      "I will not walk with your progressive apes,",
+      "erect and sapient. Before them gapes",
+      "the dark abyss to which their progress tends—",
+      "if by God's mercy progress ever ends,",
+      "and does not ceaselessly revolve the same",
+      "unfruitful course with wild illusive aim.",
+    ],
+  },
+  {
+    id: "herbert-love",
+    title: "Love (III)",
+    author: "George Herbert",
+    collection: "The Temple (1633)",
+    tag: "Devotional · Anglican",
+    lines: [
+      "Love bade me welcome: yet my soul drew back,",
+      "      Guilty of dust and sin.",
+      "But quick-eyed Love, observing me grow slack",
+      "      From my first entrance in,",
+      "Drew nearer to me, sweetly questioning,",
+      "      If I lack'd any thing.",
+      "",
+      "'A guest,' I answer'd, 'worthy to be here:'",
+      "      Love said, 'You shall be he.'",
+      "'I, the unkind, ungrateful? Ah, my dear,",
+      "      I cannot look on thee.'",
+      "Love took my hand, and smiling did reply,",
+      "      'Who made the eyes but I?'",
+    ],
+  },
+  {
+    id: "berry-wild",
+    title: "The Peace of Wild Things",
+    author: "Wendell Berry",
+    collection: "Openings (1968)",
+    tag: "Creation · Contemplation",
+    lines: [
+      "When despair for the world grows in me",
+      "and I wake in the night at the least sound",
+      "in fear of what my life and my children's lives may be,",
+      "I go and lie down where the wood drake",
+      "rests in his beauty on the water, and the great heron feeds.",
+      "",
+      "I come into the peace of wild things",
+      "who do not tax their lives with forethought",
+      "of grief. I come into the presence of still water.",
+      "And I feel above me the day-blind stars",
+      "waiting with their light. For a time",
+      "I rest in the grace of the world, and am free.",
+    ],
+  },
+];
+
+export default function PoetryCorner() {
+  const [selected, setSelected] = useState(POEMS[0].id);
+  const [learned, setLearned] = useState({});
+  const [view, setView] = useState("read"); // "read" | "memorize"
+
+  const poem = POEMS.find((p) => p.id === selected);
+  const words = poem.lines
+    .join(" ")
+    .split(" ")
+    .filter((w) => w.trim().length > 0);
+  const learnedCount = words.filter((_, i) => learned[`${selected}-${i}`]).length;
+  const pct = words.length > 0 ? Math.round((learnedCount / words.length) * 100) : 0;
+
+  function toggleWord(i) {
+    const key = `${selected}-${i}`;
+    setLearned((prev) => ({ ...prev, [key]: !prev[key] }));
+  }
+
+  return (
+    <div>
+      {/* Poem selector */}
+      <div className="section">
+        <p className="section-label">Poetry Collection</p>
+        <div className="card" style={{ padding: "0.5rem 0" }}>
+          {POEMS.map((p) => (
+            <div
+              key={p.id}
+              onClick={() => { setSelected(p.id); setView("read"); }}
+              style={{
+                padding: "0.65rem 1.25rem",
+                cursor: "pointer",
+                borderBottom: "1px solid var(--border-lt)",
+                background: selected === p.id ? "var(--parchment2)" : "transparent",
+              }}
+            >
+              <p style={{ fontFamily: "var(--font-serif)", fontSize: "0.9rem", color: "var(--ink)", fontWeight: selected === p.id ? 500 : 400 }}>
+                {p.title}
+              </p>
+              <p style={{ fontSize: "0.72rem", color: "var(--ink-ghost)", marginTop: "1px", fontStyle: "italic", fontFamily: "var(--font-serif)" }}>
+                {p.author} · {p.tag}
+              </p>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* View toggle */}
+      <div style={{ display: "flex", gap: "0.5rem", marginBottom: "1.25rem" }}>
+        {["read", "memorize"].map((v) => (
+          <button
+            key={v}
+            className={`tab-btn ${view === v ? "active" : ""}`}
+            onClick={() => setView(v)}
+            style={{ borderBottom: "none", border: "1px solid var(--border)", borderRadius: "var(--radius-md)", padding: "0.35rem 0.85rem" }}
+          >
+            {v === "read" ? "Read" : "Memorize"}
+          </button>
+        ))}
+      </div>
+
+      {view === "read" && (
+        <div className="section">
+          <p className="section-label">Reading</p>
+          <div className="card">
+            <p className="poem-title">{poem.title}</p>
+            {poem.lines.map((line, i) =>
+              line === "" ? (
+                <div key={i} style={{ height: "0.75rem" }} />
+              ) : (
+                <p key={i} className="poem-lines" style={{ display: "block", lineHeight: "1.85", fontSize: "0.95rem", whiteSpace: "pre" }}>
+                  {line}
+                </p>
+              )
+            )}
+            <p className="poem-author">{poem.author} · <em>{poem.collection}</em></p>
+          </div>
+        </div>
+      )}
+
+      {view === "memorize" && (
+        <div className="section">
+          <p className="section-label">Memorization — {pct}% learned</p>
+          <div className="card memorization-card">
+            <div className="progress-bar" style={{ marginBottom: "1rem" }}>
+              <div className="progress-fill" style={{ width: `${pct}%`, transition: "width 0.3s" }} />
+            </div>
+            <p style={{ fontSize: "0.75rem", color: "var(--ink-ghost)", marginBottom: "0.75rem" }}>
+              Tap a word to mark it as learned. Work line by line, then stanza by stanza.
+            </p>
+            <div className="mem-progress">
+              {words.map((word, i) => (
+                <span
+                  key={i}
+                  className={`mem-word ${learned[`${selected}-${i}`] ? "learned" : ""}`}
+                  onClick={() => toggleWord(i)}
+                >
+                  {word}
+                </span>
+              ))}
+            </div>
+          </div>
+          <div className="lore-card" style={{ marginTop: "1rem" }}>
+            <p className="lore-label">On memorization</p>
+            <p className="lore-text">
+              "Poetry is the art of recovering the salutary shock of wonder." A poem
+              lodged in memory becomes a companion for life — available in the dark, in
+              the hospital, at the graveside.
+            </p>
+            <p className="source-line">After Malcolm Guite · Faith, Hope and Poetry</p>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
